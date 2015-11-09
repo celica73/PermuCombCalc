@@ -2,6 +2,8 @@ package johnson.scott.calculator.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +12,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import johnson.scott.calculator.model.CalculatorModel;
@@ -35,9 +39,9 @@ public class Calculator extends JFrame implements ActionListener {
             "Enter formula separated by spaces, C n r or P n r.",
             (int) CENTER_ALIGNMENT);
     private JTextField param = new JTextField();
-    private String answerString;
-    private JTextField answer = new JTextField(answerString, (int) CENTER_ALIGNMENT);
-    private JPanel inst = new JPanel();
+    private JTextArea answerString = new JTextArea();
+    private JScrollPane answer = new JScrollPane(answerString);
+    private JPanel instructionPanel = new JPanel();
 
     public Calculator() {
         m = new CalculatorModel();
@@ -56,14 +60,18 @@ public class Calculator extends JFrame implements ActionListener {
         buttons.add(zero);
         buttons.add(compute);
         c.add(buttons, BorderLayout.EAST);
-        inst.setLayout(new GridLayout(3, 1));
-        inst.add(instructions);
-        inst.add(param);
-        inst.add(answer);
-        c.add(inst, BorderLayout.WEST);
-
+        instructionPanel.setLayout(new FlowLayout());
+        instructionPanel.setPreferredSize(new Dimension(350, 300));
+        instructionPanel.add(instructions);
+        instructionPanel.add(param);
+        instructionPanel.add(answer);
+        c.add(instructionPanel, BorderLayout.WEST);
+        param.setPreferredSize(new Dimension(300, 30));
+        answer.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        answer.setPreferredSize(new Dimension(300, 200));
         setTitle("Permutation and Combination Calculator");
-        setSize(550, 150);
+        setSize(600, 310);
+        setLocation(50,50);
         setVisible(true);
 
         param.addActionListener(this);
@@ -105,17 +113,19 @@ public class Calculator extends JFrame implements ActionListener {
             param.setText(param.getText() + "0");
         } else if (e.getSource().equals(compute)) {
             m.parseLine(param.getText());
-            answer.setText(String.format("%s(%d,%d) = %d",
+            answerString.setText(String.format("%s(%d,%d) = %d",
                     m.getCalcType().toUpperCase(), m.getN(), m.getR(),
                     m.getAnswer()));
             param.setText("");
         } else {
             JTextField userEntry = (JTextField) e.getSource();
             m.parseLine(userEntry.getText());
-            answer.setText(String.format("%s(%d,%d) = %.0f",
+            answerString.setText(String.format("%s(%d,%d) = %.0f",
                     m.getCalcType().toUpperCase(), m.getN(), m.getR(),
-                    m.getAnswer()));
+                    m.getAnswer()) + "\n" + answerString.getText());
+            answerString.setCaretPosition(0);
             param.setText("");
+            
         }
     }
 
